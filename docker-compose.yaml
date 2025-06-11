@@ -19,8 +19,8 @@ services:
       - CMK_SITE_ID=cmk
       - CMK_LIVESTATUS_TCP=on
       - TZ=${TZ:-America/New_York}
+      - CMK_PASSWORD=${APP_TEMP_PASS:-u86ydJk3WmCfpODZ}
       - MAIL_RELAY_HOST=${EMAIL_SERVER_HOST:-172.17.0.1}
-      - CMK_PASSWORD=${APP_ADMIN_PASS:-u86ydJk3WmCfpODZ}
     ports:
       - '162:162'
       - '514:514'
