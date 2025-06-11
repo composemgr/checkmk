@@ -35,6 +35,8 @@ services:
     volumes:
       - '/etc/localtime:/etc/localtime:ro'
       - './rootfs/data/checkmk:/omd/sites'
+    tmpfs:
+      - '/opt/omd/sites/cmk/tmp:uid=1000,gid=1000'
     networks:
       - checkmk
 
