@@ -22,19 +22,19 @@ services:
       - MAIL_RELAY_HOST=${EMAIL_SERVER_HOST:-172.17.0.1}
       - CMK_PASSWORD=${APP_ADMIN_PASS:-u86ydJk3WmCfpODZ}
     ports:
-      - '162:162/udp'
-      - '514:514/udp'
-      - '514:514/tcp'
-      - '6557:6557/tcp'
-      - '60128:5000/tcp'
-      - '172.17.0.1:60129:8000/tcp'
+      - '162:162'
+      - '514:514'
+      - '4317:4317'
+      - '4318:4318'
+      - '6558:6558'
+      - '6559:6559'
+      - '60128:8000'
+      - '172.17.0.1:60129:5000/tcp'
     ulimits:
       nofile: 1024
     volumes:
       - '/etc/localtime:/etc/localtime:ro'
       - './rootfs/data/checkmk:/omd/sites'
-    tmpfs:
-      - './rootfs/temp:uid=1000,gid=1000'
     networks:
       - checkmk
 
