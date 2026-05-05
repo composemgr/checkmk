@@ -47,7 +47,7 @@ See `docker-compose.yaml` for complete list of configurable options.
 
 ## 📂 Volumes
 
-- `./rootfs/data/checkmk` - Data storage
+- `./volumes/data/checkmk` - Data storage
 
 ## 🔐 Security
 
