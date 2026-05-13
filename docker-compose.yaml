@@ -1,4 +1,4 @@
-# nginx proxy address - http://172.17.0.1:60129
+# nginx proxy address - http://172.17.0.1:60128
 
 name: checkmk
 x-logging: &default-logging
@@ -21,6 +21,8 @@ services:
       CMK_LIVESTATUS_TCP: ${CMK_LIVESTATUS_TCP:-on}
       CMK_PASSWORD: ${APP_ADMIN_PASS:-changeme_admin_password}
       MAIL_RELAY_HOST: ${EMAIL_SERVER_HOST:-172.17.0.1}
+      CONTAINER_NAME: checkmk-app
+      HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
     ports:
       - '162:162'
       - '514:514'
@@ -39,8 +41,30 @@ services:
       - '/opt/omd/sites/cmk/tmp:uid=1000,gid=1000'
     networks:
       - checkmk
+      - proxy
+      - cloudflare
+    labels:
+      - 'traefik.enable=true'
+      - 'cloudflare.enable=true'
+      - 'traefik.docker.network=proxy'
+      - 'cloudflare.service=http://checkmk-app:8000'
+      - 'cloudflare.hostname=checkmk.${CLOUDFLARE_ZONE_NAME:-}'
+      - 'traefik.http.routers.checkmk-app.entrypoints=http'
+      - 'traefik.http.routers.checkmk-app-secure.tls=true'
+      - 'traefik.http.routers.checkmk-app.rule=Host($(${BASE_HOST_NAME:-$HOSTNAME}))'
+      - 'traefik.http.middlewares.checkmk-app-https-redirect.redirectscheme.scheme=https'
+      - 'traefik.http.routers.checkmk-app.middlewares=checkmk-app-https-redirect'
+      - 'traefik.http.routers.checkmk-app-secure.entrypoints=https'
+      - 'traefik.http.routers.checkmk-app-secure.rule=Host($(${BASE_HOST_NAME:-$HOSTNAME}))'
+      - 'traefik.http.routers.checkmk-app-secure.tls.certresolver=cloudflare'
+      - 'traefik.http.routers.checkmk-app-secure.service=checkmk-app'
+      - 'traefik.http.services.checkmk-app.loadbalancer.server.port=8000'
 
 networks:
   checkmk:
     name: checkmk
     external: false
+  proxy:
+    external: true
+  cloudflare:
+    external: true
