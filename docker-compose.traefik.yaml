@@ -1,0 +1,55 @@
+name: checkmk
+x-logging: &default-logging
+  options:
+    max-size: '5m'
+    max-file: '1'
+  driver: json-file
+
+services:
+  app:
+    image: checkmk/check-mk-raw:latest
+    container_name: checkmk-app
+    domainname: ${BASE_DOMAIN_NAME:-example.com}
+    hostname: ${BASE_HOST_NAME:-$HOSTNAME}
+    restart: always
+    pull_policy: always
+    logging: *default-logging
+    environment:
+      TZ: ${TZ:-America/New_York}
+      CMK_SITE_ID: ${CMK_SITE_ID:-cmk}
+      CMK_PASSWORD: ${APP_ADMIN_PASS:-replace-with-a-random-password}
+      CMK_SECRET_KEY: ${APP_SECRET_KEY:-replace-with-a-random-32-byte-hex-string}
+      CONTAINER_NAME: checkmk-app
+      HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
+    volumes:
+      - '/etc/localtime:/etc/localtime:ro'
+      - './volumes/data/checkmk:/omd/sites'
+    tmpfs:
+      - '/opt/omd/sites/cmk/tmp:uid=1000,gid=1000'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/${CMK_SITE_ID:-cmk}/" ]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=traefik'
+      - 'traefik.http.routers.checkmk-app.entrypoints=http'
+      - 'traefik.http.routers.checkmk-app.rule=Host(`${BASE_HOST_NAME:-$HOSTNAME}`'
+      - 'traefik.http.routers.checkmk-app.middlewares=checkmk-app-https-redirect'
+      - 'traefik.http.middlewares.checkmk-app-https-redirect.redirectscheme.scheme=https'
+      - 'traefik.http.routers.checkmk-app-secure.entrypoints=https'
+      - 'traefik.http.routers.checkmk-app-secure.rule=Host(`${BASE_HOST_NAME:-$HOSTNAME}`'
+      - 'traefik.http.routers.checkmk-app-secure.tls.certresolver=cloudflare'
+      - 'traefik.http.routers.checkmk-app-secure.service=checkmk-app'
+      - 'traefik.http.services.checkmk-app.loadbalancer.server.port=5000'
+    networks:
+      - checkmk
+      - traefik
+
+networks:
+  checkmk:
+    name: checkmk
+    external: false
+  traefik:
+    external: true
