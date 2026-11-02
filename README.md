@@ -84,6 +84,8 @@ docker compose -f docker-compose.traefik.yaml --env-file .env up -d
 
 - **Web Interface**: http://172.17.0.1:64137
 
+Non-HTTP protocol ports are published identically in all three compose variants, because they cannot be proxied over HTTP: `6557` (agent receiver).
+
 ## 📂 Volumes
 
 - `/etc/localtime` - Host timezone, read-only

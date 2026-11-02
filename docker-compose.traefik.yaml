@@ -21,6 +21,8 @@ services:
       CMK_SECRET_KEY: ${APP_SECRET_KEY:-replace-with-a-random-32-byte-hex-string}
       CONTAINER_NAME: checkmk-app
       HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
+    ports:
+      - '6557:6557'
     volumes:
       - '/etc/localtime:/etc/localtime:ro'
       - './volumes/data/checkmk:/omd/sites'

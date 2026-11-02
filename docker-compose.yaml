@@ -25,6 +25,7 @@ services:
       HOSTNAME: ${BASE_HOST_NAME:-$HOSTNAME}
     ports:
       - '172.17.0.1:64137:5000'
+      - '6557:6557'
     volumes:
       - '/etc/localtime:/etc/localtime:ro'
       - './volumes/data/checkmk:/omd/sites'
